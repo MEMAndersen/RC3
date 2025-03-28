@@ -12,3 +12,8 @@ dependencies = [
 mosek = [
     "mosek>=11.0.13",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.2",
+]

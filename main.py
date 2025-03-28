@@ -36,14 +36,14 @@ def main(sigma: list[float], sigma_0: list[float]) -> None:
     phi_y = 5  # MPa
     phi_z = 5  # MPa
 
-    ## Stresses
-    S_c = cp.Variable((3, 3), symmetric=True, name="S_c")
-    S_s = cp.Variable((3, 3), symmetric=True, name="S_s")
-    S_t = cp.Variable((3, 3), symmetric=True, name="S_t")
+    ## Stress tensors
+    S_c = cp.Variable((3, 3), symmetric=True, name="S_c")  # Concrete
+    S_s = cp.Variable((3, 3), symmetric=True, name="S_s")  # Steel
+    S_t = cp.Variable((3, 3), symmetric=True, name="S_t")  # Total
 
     ## Auxiliary
-    s3 = cp.Variable(1, name="s3")
-    s1 = cp.Variable(1, name="s1")
+    s1 = cp.Variable(1, name="s1")  # First principal stress
+    s3 = cp.Variable(1, name="s3")  # Third principal stress
     load_factor = cp.Variable(1, name="load_factor")
 
     # Constraints
@@ -77,20 +77,23 @@ def main(sigma: list[float], sigma_0: list[float]) -> None:
             s_lin_ineq_high,
         ],
     )
-    prob.solve(verbose=True, solver="MOSEK")
+    prob.solve(
+        verbose=True,
+        # solver="MOSEK", # UNCOMMENT TO USE MOSEK
+    )
 
-    # Print result.
+    # Print result
     print("The optimal value is", prob.value)
     print(f"S_t = \n{S_t.value}")
     print(f"S_c = \n{S_c.value}")
     print(f"S_s = \n{S_s.value}")
     print(load_factor.value * sigma_tensor + sigma_0_tensor, "\n=\n", S_t.value)
-    print(f"s3 = \n{s3.value}")
     print(f"s1 = \n{s1.value}")
+    print(f"s3 = \n{s3.value}")
 
 
 if __name__ == "__main__":
-    sigma = [-20, -20, -2, 0, 0, 0]
-    sigma_0 = [-10, 0, 0, 0, 0, 0]
+    sigma = [-20.0, -20.0, -2.0, 0.0, 0.0, 0.0]
+    sigma_0 = [-10.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     main(sigma, sigma_0)
